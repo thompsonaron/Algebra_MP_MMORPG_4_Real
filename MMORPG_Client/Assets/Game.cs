@@ -12,6 +12,7 @@ public class Game : MonoBehaviour
     private GameObject[] players = new GameObject[3];
     private Match match = new Match();
     private int myPlayerIndex = -1;
+    public int myMovementSpeed = 7;
 
     public Text info;
 
@@ -29,20 +30,21 @@ public class Game : MonoBehaviour
         {
             if (package.messageType == MessageType.SpawnPlayer)  //response
             {
-                Debug.Log("Spawning time");
-                Match m = new Match();
-                m = Serializator.DeserializeMatch(package.data);
-                match = m;
-                Net.myMatchID = m.matchID;
-                for (int i = 0; i < match.matchPlayers.Count; i++)
+                Match match = new Match();
+                match = Serializator.DeserializeMatch(package.data);
+                this.match = match;
+                Net.myMatchID = match.matchID;
+                for (int i = 0; i < this.match.matchPlayers.Count; i++)
                 {
-                    if (match.matchPlayers[i].lobbyId == Net.myLobbyID)
+                    // if it is me, instantiate player color and set myGameID
+                    if (this.match.matchPlayers[i].lobbyId == Net.myLobbyID)
                     {
                         players[i] = Instantiate(playerTemplate, spawnPoints[i].transform.position, Quaternion.identity);
-                        Net.myGameID = match.matchPlayers[i].gameId;
+                        Net.myGameID = this.match.matchPlayers[i].gameId;
                         myPlayerIndex = i;
-                        info.text = "My index: " + i + "ID: " + match.matchPlayers[i].gameId;
+                        info.text = "My index: " + i + "ID: " + this.match.matchPlayers[i].gameId;
                     }
+                    // else it is others
                     else
                     {
                         players[i] = Instantiate(opponentsTemplate, spawnPoints[i].transform.position, Quaternion.identity);
@@ -55,11 +57,12 @@ public class Game : MonoBehaviour
                 float step = speed * Time.deltaTime;
                 PlayerPosition playerPosition = new PlayerPosition();
                 playerPosition = Serializator.DeserializePlayerPosition(package.data);
-                //players[myPlayerIndex].transform.position = Vector3.MoveTowards(players[playerPosition.playerIndex].transform.position, new Vector3(playerPosition.posX, playerPosition.posY, playerPosition.posZ), step);
+
+                // Movement in steps
+                players[playerPosition.playerIndex].transform.position = Vector3.MoveTowards(players[playerPosition.playerIndex].transform.position, new Vector3(playerPosition.posX, playerPosition.posY, playerPosition.posZ), step);
                 
-                players[playerPosition.playerIndex].transform.position = new Vector3(playerPosition.posX, playerPosition.posY, playerPosition.posZ);
-                Debug.Log("Indeks: " + myPlayerIndex);
-                Debug.Log("Indeks: " + playerPosition.posX+ " " +  playerPosition.posY+ " " + playerPosition.posZ);
+                // Instant movement
+                //players[playerPosition.playerIndex].transform.position = new Vector3(playerPosition.posX, playerPosition.posY, playerPosition.posZ);
             }
             else if (package.messageType == MessageType.ExitGame)
             {
@@ -100,7 +103,7 @@ public class Game : MonoBehaviour
             direction.Normalize();
             if (direction != Vector3.zero)
             {
-                var position = myPlayer.position + direction * 7 * Time.deltaTime;
+                var position = myPlayer.position + direction * myMovementSpeed * Time.deltaTime;
                 //Vector3 relativePos = position - myPlayer.position;
                 myPlayer.position = position;
                 NetPackett packett = new NetPackett

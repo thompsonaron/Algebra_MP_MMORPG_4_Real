@@ -1,8 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using WebSocketSharp;
 using WebSocketSharp.Server;
 
@@ -13,6 +10,7 @@ namespace MMORPG_Server
         static List<Match> matches = new List<Match>();
         // used as ID for matches
         static int counter = 0;
+        readonly static int minimumMatchmakingRange = 100;
 
         static void Main(string[] args)
         {
@@ -75,8 +73,9 @@ namespace MMORPG_Server
 
             public void StartMatchmaking(int elo, string playerID)
             {
-                Console.WriteLine("MATCHMAKING");
+                Console.WriteLine("Player entering matchmaking");
                 Player current = new Player();
+                // finding player through lobby ID, enabling his isMatchmaking and setting elo
                 foreach (var player in players)
                 {
                     if (player.lobbyId == playerID)
@@ -91,19 +90,24 @@ namespace MMORPG_Server
                 match.matchPlayers.Add(current);
                 foreach (var player in players)
                 {
-                    Console.WriteLine(Math.Abs(elo - player.elo));
                     //(Math.Abs(elo - player.elo) calculates "distance"
-                    if ((player.lobbyId != playerID) && (Math.Abs(elo - player.elo) <= 100) && player.isMatchmaking)
+                    if ((player.lobbyId != playerID) && (Math.Abs(elo - player.elo) <= minimumMatchmakingRange) && player.isMatchmaking)
                     {
-                        Console.WriteLine("Found a match");
                         match.matchPlayers.Add(player);
+                        // if 3 players are in a match, add it to a list and give it id -> Send match id to those players and let them know they can play
                         if (match.matchPlayers.Count == 3)
                         {
+                            Console.WriteLine("Found a match");
                             match.matchID = counter++;
                             matches.Add(match);
                             foreach (var p in match.matchPlayers)
                             {
-                                Sessions.SendTo(Serializator.serialize(new NetPackett() { data = Serializator.serialize(match.matchID.ToString()), messageType = MessageType.StartTheGame }), p.lobbyId);
+                                NetPackett packett = new NetPackett()
+                                {
+                                    data = Serializator.serialize(match.matchID.ToString()),
+                                    messageType = MessageType.StartTheGame
+                                };
+                                Sessions.SendTo(Serializator.serialize(packett), p.lobbyId);
                             }
                         }
                     }
@@ -150,9 +154,9 @@ namespace MMORPG_Server
                     {
                         string data = Serializator.DeserializeString(packett.data);
                         string[] sortedData = data.Split(':');
-                      //  Console.WriteLine("Game: " + sortedData[0] + " " + sortedData[1]);
 
                         Match match = getMatch(int.Parse(sortedData[1]));
+                        // connecting lobbyID and gameID to all players in a match
                         foreach (var player in match.matchPlayers)
                         {
                             if (player.lobbyId == sortedData[0])
@@ -161,6 +165,7 @@ namespace MMORPG_Server
                             }
                         }
 
+                        // checking if gameID is set to all players - as in: are they all loaded into a game
                         bool allLoaded = true;
                         foreach (var player in match.matchPlayers)
                         {
@@ -169,10 +174,10 @@ namespace MMORPG_Server
                                 allLoaded = false;
                             }
                         }
+                        // if All Loaded - send them match data and allow Player spawning
                         if (allLoaded)
                         {
-                            Console.WriteLine("allLoaded");
-
+                            Console.WriteLine("All players loaded");
                             foreach (var player in match.matchPlayers)
                             {
                                 Sessions.SendTo(Serializator.serialize(new NetPackett() { data = Serializator.serialize(match), messageType = MessageType.SpawnPlayer }), player.gameId);
@@ -185,6 +190,8 @@ namespace MMORPG_Server
                         PlayerPosition pos = new PlayerPosition();
                         pos = Serializator.DeserializePlayerPosition(packett.data);
                         NetPackett netPackett = new NetPackett() { messageType = MessageType.OtherPlayerMoved, data = packett.data };
+                        // 1. in all matches finding my match through id
+                        // 2. when I find the match - sending to my new position to all players except myself
                         foreach (var match in matches)
                         {
                             if (match.matchID == pos.matchID)
