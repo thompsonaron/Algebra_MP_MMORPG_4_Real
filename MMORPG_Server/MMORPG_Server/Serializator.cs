@@ -6,6 +6,8 @@ namespace MMORPG_Server
 {
     public static class Serializator
     {
+        // NETPACKETT
+        // custom modified to read Message Type
         public static byte[] serialize(NetPackett netpackett)
         {
             var s = new MemoryStream();
@@ -18,20 +20,13 @@ namespace MMORPG_Server
             }
             return s.ToArray();
         }
-        public static byte[] serialize(Pllayyer pllayyer)
-        {
-            var s = new MemoryStream();
-            var bW = new BinaryWriter(s);
-            bW.Write(pllayyer.pos);
-            bW.Write(pllayyer.ID);
-            return s.ToArray();
-        }
+
+        // custom modified to read Message Type
         public static NetPackett DeserializeNetPackett(byte[] b)
         {
             var s = new MemoryStream(b);
             var bR = new BinaryReader(s);
             var obj = new NetPackett();
-            //obj.messageType = DeserializeMessageType(ref b, ref s, ref bR);
             obj.messageType = (MessageType)bR.ReadInt32();
             int dataArraySize = bR.ReadInt32();
             obj.data = new Byte[dataArraySize];
@@ -41,16 +36,8 @@ namespace MMORPG_Server
             }
             return obj;
         }
-        public static Pllayyer DeserializePllayyer(byte[] b)
-        {
-            var s = new MemoryStream(b);
-            var bR = new BinaryReader(s);
-            var obj = new Pllayyer();
-            obj.pos = bR.ReadSingle();
-            obj.ID = bR.ReadString();
-            return obj;
-        }
 
+        // custom modified to read Message Type
         private static NetPackett DeserializeNetPackett(ref byte[] b, ref MemoryStream s, ref BinaryReader bR)
         {
             var obj = new NetPackett();
@@ -63,29 +50,9 @@ namespace MMORPG_Server
             }
             return obj;
         }
-        private static Pllayyer DeserializePllayyer(ref byte[] b, ref MemoryStream s, ref BinaryReader bR)
-        {
-            var obj = new Pllayyer();
-            obj.pos = bR.ReadSingle();
-            obj.ID = bR.ReadString();
-            return obj;
-        }
 
-        public static byte[] serialize(StringData stringdata)
-        {
-            var s = new MemoryStream();
-            var bW = new BinaryWriter(s);
-            bW.Write(stringdata.data);
-            return s.ToArray();
-        }
 
-        private static StringData DeserializeStringData(ref byte[] b, ref MemoryStream s, ref BinaryReader bR)
-        {
-            var obj = new StringData();
-            obj.data = bR.ReadString();
-            return obj;
-        }
-
+        // PLAYER
         public static byte[] serialize(Player player)
         {
             var s = new MemoryStream();
@@ -94,19 +61,6 @@ namespace MMORPG_Server
             bW.Write(player.gameId);
             bW.Write(player.elo);
             bW.Write(player.isMatchmaking);
-            return s.ToArray();
-        }
-
-        public static byte[] serialize(Match match)
-        {
-            var s = new MemoryStream();
-            var bW = new BinaryWriter(s);
-            bW.Write(match.matchPlayers.Count);
-            foreach (var item in match.matchPlayers)
-            {
-                bW.Write(serialize(item));
-            }
-            bW.Write(match.matchID);
             return s.ToArray();
         }
 
@@ -130,6 +84,20 @@ namespace MMORPG_Server
             obj.elo = bR.ReadInt32();
             obj.isMatchmaking = bR.ReadBoolean();
             return obj;
+        }
+
+        // MATCH
+        public static byte[] serialize(Match match)
+        {
+            var s = new MemoryStream();
+            var bW = new BinaryWriter(s);
+            bW.Write(match.matchPlayers.Count);
+            foreach (var item in match.matchPlayers)
+            {
+                bW.Write(serialize(item));
+            }
+            bW.Write(match.matchID);
+            return s.ToArray();
         }
 
         public static Match DeserializeMatch(byte[] b)
@@ -160,6 +128,7 @@ namespace MMORPG_Server
             return obj;
         }
 
+        // PLAYERPOSITION
         public static byte[] serialize(PlayerPosition playerposition)
         {
             var s = new MemoryStream();
@@ -196,6 +165,7 @@ namespace MMORPG_Server
             return obj;
         }
 
+        // STRING
         public static byte[] serialize(string stringdata)
         {
             var s = new MemoryStream();

@@ -11,7 +11,9 @@ namespace MMORPG_Server
     class MMORPG_Server
     {
         static List<Match> matches = new List<Match>();
+        // used as ID for matches
         static int counter = 0;
+
         static void Main(string[] args)
         {
 			WebSocketServer server = new WebSocketServer(8080);
@@ -27,10 +29,11 @@ namespace MMORPG_Server
 
             protected override void OnOpen()
             {
-				Console.WriteLine("Joined: " + ID);
-				Player p = new Player();
-				p.lobbyId = ID;
-                players.Add(p);
+				Console.WriteLine("New player joined: " + ID);
+                // Adding new player to the list and sending it's lobby ID back 
+				Player newPlayer = new Player();
+				newPlayer.lobbyId = ID;
+                players.Add(newPlayer);
                 Sessions.SendTo(Serializator.serialize(new NetPackett() { data = Serializator.serialize(ID), messageType = MessageType.SendingLobbyID }), ID);
                 //Send(("#msg:" + ID);
                 base.OnOpen();
@@ -38,13 +41,11 @@ namespace MMORPG_Server
 
             protected override void OnClose(CloseEventArgs e)
             {
+                // removing player from list on close
                 // foreach will cause errors due to changes
                 for (int i = 0; i < players.Count; i++)
                 {
-                    if (players[i].lobbyId.Equals(ID))
-                    {
-                        players.RemoveAt(i);
-                    }
+                    if (players[i].lobbyId.Equals(ID)) { players.RemoveAt(i); }
                 }
                 base.OnClose(e);
             }
@@ -58,14 +59,15 @@ namespace MMORPG_Server
 
             protected override void OnMessage(MessageEventArgs e)
             {
-                if (e.IsText)
+                if (e.IsBinary)
                 {
-                    string[] data = e.Data.Split(':');
-                    if (data[0].Equals("#elo"))
+                    NetPackett packett = new NetPackett();
+                    packett = Serializator.DeserializeNetPackett(e.RawData);
+                    // receiving ELO and starting matchmaking
+                    if (packett.messageType == MessageType.SendingElo)
                     {
-                        string playerLobbyID = data[1];
-                        int elo = int.Parse(data[2]);
-                        StartMatchmaking(elo, playerLobbyID);
+                        int elo = int.Parse(Serializator.DeserializeString(packett.data));
+                        StartMatchmaking(elo, ID);
                     }
                 }
                 base.OnMessage(e);
@@ -125,15 +127,13 @@ namespace MMORPG_Server
 
             protected override void OnClose(CloseEventArgs e)
             {
+                // removing player from list on close
                 foreach (var match in matches)
                 {
                     // foreach will cause errors due to changes
                     for (int i = 0; i < match.matchPlayers.Count; i++)
                     {
-                        if (match.matchPlayers[i] .gameId.Equals(ID))
-                        {
-                            match.matchPlayers.RemoveAt(i);
-                        }
+                        if (match.matchPlayers[i] .gameId.Equals(ID)) { match.matchPlayers.RemoveAt(i); }
                     }
                 }
                 base.OnClose(e);
@@ -216,6 +216,4 @@ namespace MMORPG_Server
             }
         }
     }
-
-	
 }

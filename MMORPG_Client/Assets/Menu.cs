@@ -1,5 +1,4 @@
 ﻿using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
@@ -13,33 +12,44 @@ public class Menu : MonoBehaviour
 
     public void joinServer()
     {
-        Net.joinServer();
         btnJoinServer.gameObject.SetActive(false);
+        // connecting to lobby
+        Net.joinServer();
+        // enabling matchmaking input once connected
         StartCoroutine(JoinedServerRoutine());
     }
 
     public void startMatchmaking()
     {
+        // disabling elo input and joining matchmaking
         Net.myElo = inputElo.text;
         btnJoinGame.gameObject.SetActive(false);
         inputElo.gameObject.SetActive(false);
         textMatchmaking.gameObject.SetActive(true);
-        Net.joinMatchmaking();
+
+
+        NetPackett netPackett = new NetPackett()
+        {
+            data = Serializator.serialize(Net.myElo),
+            messageType = MessageType.SendingElo
+        };
+
+        Net.sendLobbyPacket(netPackett);
     }
 
-    // Update is called once per frame
     void Update()
     {
         var packets = Net.doUpdate();
         foreach (var packet in packets)
         {
+            // matchmaking was success - receiving match ID and starting a Game
             if (packet.messageType == MessageType.StartTheGame)
             {
                 Net.myMatchID = int.Parse(Serializator.DeserializeString(packet.data));
                 Net.joinGame();
-                Debug.Log("JOIN GAME");
                 SceneManager.LoadScene("Game");
             }
+            // receiving response from server and my lobby ID, notifying that I have connected
             else if (packet.messageType == MessageType.SendingLobbyID)
             {
                 Net.myLobbyID = Serializator.DeserializeString(packet.data);

@@ -30,11 +30,6 @@ public static class Net
         clientSocketLobby.Send(Serializator.serialize(new NetPackett { messageType = MessageType.ExitGame }));
     }
 
-    public static void joinMatchmaking()
-    {
-        clientSocketLobby.Send("#elo:" + myLobbyID + ":" + myElo);
-    }
-
     private static void ClientSocketLobby_OnMessage(object sender, MessageEventArgs e)
     {
         if(e.IsBinary)
@@ -61,7 +56,6 @@ public static class Net
     public static void joinGame()
     {
         clientSocketGame = new WebSocket("ws://localhost:8080/Game");
-        clientSocketGame.OnOpen += ClientSocketGame_OnOpen;
         clientSocketGame.OnMessage += ClientSocketGame_OnMessage;
         clientSocketGame.OnClose += ClientSocketGame_OnClose;
         clientSocketGame.Connect();
@@ -80,11 +74,6 @@ public static class Net
             packet = Serializator.DeserializeNetPackett(e.RawData);
             receiving.Add(packet);
         }
-    }
-
-    private static void ClientSocketGame_OnOpen(object sender, EventArgs e)
-    {
-        
     }
 
     public static void sendGamePacket(NetPackett packet)

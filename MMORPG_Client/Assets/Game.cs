@@ -48,14 +48,10 @@ public class Game : MonoBehaviour
                         players[i] = Instantiate(opponentsTemplate, spawnPoints[i].transform.position, Quaternion.identity);
                     }
                 }
-                foreach (var mat in m.matchPlayers)
-                {
-                    Debug.Log("Match player id: " + mat.gameId);
-                }
             }
             else if (package.messageType == MessageType.OtherPlayerMoved)
             {
-                Debug.Log("Some1Moved");
+
                 float step = speed * Time.deltaTime;
                 PlayerPosition playerPosition = new PlayerPosition();
                 playerPosition = Serializator.DeserializePlayerPosition(package.data);
