@@ -38,14 +38,22 @@ namespace MMORPG_Server
 
             protected override void OnClose(CloseEventArgs e)
             {
-                foreach (var player in players)
+                // foreach will cause errors due to changes
+                for (int i = 0; i < players.Count; i++)
                 {
-                    if (player.lobbyId.Equals(ID))
+                    if (players[i].lobbyId.Equals(ID))
                     {
-                        players.Remove(player);
+                        players.RemoveAt(i);
                     }
                 }
                 base.OnClose(e);
+            }
+
+            protected override void OnError(ErrorEventArgs e)
+            {
+                Console.WriteLine("Lobby error: " + e.Message);
+                Console.WriteLine("Lobby error: " + e.Exception);
+                base.OnError(e);
             }
 
             protected override void OnMessage(MessageEventArgs e)
@@ -77,11 +85,6 @@ namespace MMORPG_Server
                     }
                 }
 
-                //if (players.Count < 3)
-                //{
-                //    return;
-                //}
-
                 Match match = new Match();
                 match.matchPlayers.Add(current);
                 foreach (var player in players)
@@ -99,14 +102,6 @@ namespace MMORPG_Server
                             foreach (var p in match.matchPlayers)
                             {
                                 Sessions.SendTo(Serializator.serialize(new NetPackett() { data = Serializator.serialize(match.matchID.ToString()), messageType = MessageType.StartTheGame }), p.lobbyId);
-                                Console.WriteLine(p.lobbyId);
-                                //foreach (var item in players)
-                                //{
-                                //    if (item.lobbyId == p.lobbyId)
-                                //    {
-                                //        players.Remove(item);
-                                //    }
-                                //}
                             }
                         }
                     }
@@ -121,15 +116,23 @@ namespace MMORPG_Server
                 base.OnOpen();
             }
 
+            protected override void OnError(ErrorEventArgs e)
+            {
+                Console.WriteLine("GameBehavior error: " + e.Message);
+                Console.WriteLine("GameBehavior error: " + e.Exception);
+                base.OnError(e);
+            }
+
             protected override void OnClose(CloseEventArgs e)
             {
                 foreach (var match in matches)
                 {
-                    foreach (var player in match.matchPlayers)
+                    // foreach will cause errors due to changes
+                    for (int i = 0; i < match.matchPlayers.Count; i++)
                     {
-                        if (player.gameId.Equals(ID))
+                        if (match.matchPlayers[i] .gameId.Equals(ID))
                         {
-                            match.matchPlayers.Remove(player);
+                            match.matchPlayers.RemoveAt(i);
                         }
                     }
                 }
@@ -147,7 +150,7 @@ namespace MMORPG_Server
                     {
                         string data = Serializator.DeserializeString(packett.data);
                         string[] sortedData = data.Split(':');
-                        Console.WriteLine("Game: " + sortedData[0] + " " + sortedData[1]);
+                      //  Console.WriteLine("Game: " + sortedData[0] + " " + sortedData[1]);
 
                         Match match = getMatch(int.Parse(sortedData[1]));
                         foreach (var player in match.matchPlayers)
@@ -155,10 +158,6 @@ namespace MMORPG_Server
                             if (player.lobbyId == sortedData[0])
                             {
                                 player.gameId = ID;
-                            }
-                            else
-                            {
-                                Console.WriteLine(">>" + player.gameId + "<<");
                             }
                         }
 
@@ -186,7 +185,6 @@ namespace MMORPG_Server
                         PlayerPosition pos = new PlayerPosition();
                         pos = Serializator.DeserializePlayerPosition(packett.data);
                         NetPackett netPackett = new NetPackett() { messageType = MessageType.OtherPlayerMoved, data = packett.data };
-                        Console.WriteLine("Whotindex " + pos.matchID);
                         foreach (var match in matches)
                         {
                             if (match.matchID == pos.matchID)
@@ -195,13 +193,7 @@ namespace MMORPG_Server
                                 {
                                     if (!ID.Equals(player.gameId))
                                     {
-                                        Console.WriteLine("Oponent ID:" + player.gameId);
                                         Sessions.SendTo(Serializator.serialize(netPackett), player.gameId);
-                                    }
-                                    else
-                                    {
-                                        Console.WriteLine("Me      ID:" + player.gameId);
-
                                     }
                                 }
                             }
