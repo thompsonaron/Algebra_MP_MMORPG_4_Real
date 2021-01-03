@@ -25,7 +25,13 @@ public static class Net
         clientSocketLobby = new WebSocket("ws://localhost:8080/Lobby");
         clientSocketLobby.OnOpen += ClientSocketLobby_OnOpen;
         clientSocketLobby.OnMessage += ClientSocketLobby_OnMessage;
+        clientSocketLobby.OnClose += ClientSocketLobby_OnClose;
         clientSocketLobby.Connect();
+    }
+
+    private static void ClientSocketLobby_OnClose(object sender, CloseEventArgs e)
+    {
+        clientSocketLobby.Send(Serializator.serialize(new NetPackett { messageType = MessageType.ExitGame }));
     }
 
     public static void joinMatchmaking()
@@ -78,7 +84,13 @@ public static class Net
         clientSocketGame = new WebSocket("ws://localhost:8080/Game");
         clientSocketGame.OnOpen += ClientSocketGame_OnOpen;
         clientSocketGame.OnMessage += ClientSocketGame_OnMessage;
+        clientSocketGame.OnClose += ClientSocketGame_OnClose;
         clientSocketGame.Connect();
+    }
+
+    private static void ClientSocketGame_OnClose(object sender, CloseEventArgs e)
+    {
+        clientSocketGame.Send(Serializator.serialize(new NetPackett { messageType = MessageType.ExitGame }));
     }
 
     private static void ClientSocketGame_OnMessage(object sender, MessageEventArgs e)
@@ -109,6 +121,19 @@ public static class Net
 
         return output;
     }
+
+    public static void destroy()
+    {
+        if (clientSocketLobby != null && clientSocketLobby.IsAlive)
+        {
+            clientSocketLobby.Close();
+        }
+        if (clientSocketGame != null && clientSocketGame.IsAlive)
+        {
+            clientSocketGame.Close();
+        }
+        //int r = (int)MessageType.ClientMoved;
+    }
 }
 
 
@@ -125,6 +150,7 @@ public class Player
     public string lobbyId;
     public string gameId;
     public int elo;
+    public bool isMatchmaking;
 }
 
 [Serializable]

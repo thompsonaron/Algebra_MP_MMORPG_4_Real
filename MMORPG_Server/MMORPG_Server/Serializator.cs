@@ -96,6 +96,7 @@ namespace MMORPG_Server
             bW.Write(player.lobbyId);
             bW.Write(player.gameId);
             bW.Write(player.elo);
+            bW.Write(player.isMatchmaking);
             return s.ToArray();
         }
 
@@ -120,6 +121,7 @@ namespace MMORPG_Server
             obj.lobbyId = bR.ReadString();
             obj.gameId = bR.ReadString();
             obj.elo = bR.ReadInt32();
+            obj.isMatchmaking = bR.ReadBoolean();
             return obj;
         }
 
@@ -129,6 +131,7 @@ namespace MMORPG_Server
             obj.lobbyId = bR.ReadString();
             obj.gameId = bR.ReadString();
             obj.elo = bR.ReadInt32();
+            obj.isMatchmaking = bR.ReadBoolean();
             return obj;
         }
 

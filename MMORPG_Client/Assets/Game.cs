@@ -65,6 +65,14 @@ public class Game : MonoBehaviour
                 Debug.Log("Indeks: " + myPlayerIndex);
                 Debug.Log("Indeks: " + playerPosition.posX+ " " +  playerPosition.posY+ " " + playerPosition.posZ);
             }
+            else if (package.messageType == MessageType.ExitGame)
+            {
+                #if UNITY_EDITOR
+                UnityEditor.EditorApplication.isPlaying = false;
+                #else
+				Application.Quit();
+                #endif
+            }
         }
 
         Moving();
@@ -107,5 +115,10 @@ public class Game : MonoBehaviour
                 Net.sendGamePacket(packett);
             }
         }
+    }
+
+    public void OnApplicationQuit()
+    {
+        Net.destroy();
     }
 }

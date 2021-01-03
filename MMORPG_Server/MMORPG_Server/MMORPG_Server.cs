@@ -36,6 +36,18 @@ namespace MMORPG_Server
                 base.OnOpen();
             }
 
+            protected override void OnClose(CloseEventArgs e)
+            {
+                foreach (var player in players)
+                {
+                    if (player.lobbyId.Equals(ID))
+                    {
+                        players.Remove(player);
+                    }
+                }
+                base.OnClose(e);
+            }
+
             protected override void OnMessage(MessageEventArgs e)
             {
                 if (e.IsText)
@@ -60,6 +72,7 @@ namespace MMORPG_Server
                     if (player.lobbyId == playerID)
                     {
                         player.elo = elo;
+                        player.isMatchmaking = true;
                         current = player;
                     }
                 }
@@ -75,7 +88,7 @@ namespace MMORPG_Server
                 {
                     Console.WriteLine(Math.Abs(elo - player.elo));
                     //(Math.Abs(elo - player.elo) calculates "distance"
-                    if ((player.lobbyId != playerID) && (Math.Abs(elo - player.elo) <= 100))
+                    if ((player.lobbyId != playerID) && (Math.Abs(elo - player.elo) <= 100) && player.isMatchmaking)
                     {
                         Console.WriteLine("Found a match");
                         match.matchPlayers.Add(player);
@@ -106,6 +119,21 @@ namespace MMORPG_Server
             protected override void OnOpen()
             {
                 base.OnOpen();
+            }
+
+            protected override void OnClose(CloseEventArgs e)
+            {
+                foreach (var match in matches)
+                {
+                    foreach (var player in match.matchPlayers)
+                    {
+                        if (player.gameId.Equals(ID))
+                        {
+                            match.matchPlayers.Remove(player);
+                        }
+                    }
+                }
+                base.OnClose(e);
             }
 
             protected override void OnMessage(MessageEventArgs e)
@@ -216,7 +244,8 @@ namespace MMORPG_Server
 		public string lobbyId;
 		public string gameId;
 		public int elo;
-	}
+        public bool isMatchmaking;
+    }
 
     [Serializable]
     public class Match

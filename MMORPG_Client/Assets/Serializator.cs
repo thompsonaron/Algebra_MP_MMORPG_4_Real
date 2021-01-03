@@ -92,8 +92,33 @@ public static class Serializator
         obj.lobbyId = bR.ReadString();
         obj.gameId = bR.ReadString();
         obj.elo = bR.ReadInt32();
+        obj.isMatchmaking = bR.ReadBoolean();
         return obj;
     }
+
+    public static byte[] serialize(Player player)
+    {
+        var s = new MemoryStream();
+        var bW = new BinaryWriter(s);
+        bW.Write(player.lobbyId);
+        bW.Write(player.gameId);
+        bW.Write(player.elo);
+        bW.Write(player.isMatchmaking);
+        return s.ToArray();
+    }
+
+    public static Player DeserializePlayer(byte[] b)
+    {
+        var s = new MemoryStream(b);
+        var bR = new BinaryReader(s);
+        var obj = new Player();
+        obj.lobbyId = bR.ReadString();
+        obj.gameId = bR.ReadString();
+        obj.elo = bR.ReadInt32();
+        obj.isMatchmaking = bR.ReadBoolean();
+        return obj;
+    }
+
 
     public static Match DeserializeMatch(byte[] b)
     {

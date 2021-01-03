@@ -57,4 +57,9 @@ public class Menu : MonoBehaviour
         btnJoinGame.gameObject.SetActive(true);
         inputElo.gameObject.SetActive(true);
     }
+
+    public void OnApplicationQuit()
+    {
+        Net.destroy();
+    }
 }
