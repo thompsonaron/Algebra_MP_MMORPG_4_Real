@@ -1,0 +1,9 @@
+D:\1.Education\06.Unity\Algebra_MP_MMORPG_4_Real\MMORPG_Server\MMORPG_Server\bin\Debug\MMORPG_Server.exe.config
+D:\1.Education\06.Unity\Algebra_MP_MMORPG_4_Real\MMORPG_Server\MMORPG_Server\bin\Debug\MMORPG_Server.exe
+D:\1.Education\06.Unity\Algebra_MP_MMORPG_4_Real\MMORPG_Server\MMORPG_Server\bin\Debug\MMORPG_Server.pdb
+D:\1.Education\06.Unity\Algebra_MP_MMORPG_4_Real\MMORPG_Server\MMORPG_Server\bin\Debug\websocket-sharp.dll
+D:\1.Education\06.Unity\Algebra_MP_MMORPG_4_Real\MMORPG_Server\MMORPG_Server\obj\Debug\MMORPG_Server.csprojAssemblyReference.cache
+D:\1.Education\06.Unity\Algebra_MP_MMORPG_4_Real\MMORPG_Server\MMORPG_Server\obj\Debug\MMORPG_Server.csproj.CoreCompileInputs.cache
+D:\1.Education\06.Unity\Algebra_MP_MMORPG_4_Real\MMORPG_Server\MMORPG_Server\obj\Debug\MMORPG_Server.csproj.CopyComplete
+D:\1.Education\06.Unity\Algebra_MP_MMORPG_4_Real\MMORPG_Server\MMORPG_Server\obj\Debug\MMORPG_Server.exe
+D:\1.Education\06.Unity\Algebra_MP_MMORPG_4_Real\MMORPG_Server\MMORPG_Server\obj\Debug\MMORPG_Server.pdb
