@@ -1,9 +1,5 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
-using UnityEngine;
-using UnityEngine.SceneManagement;
-using UnityEngine.UI;
 using WebSocketSharp;
 
 public static class Net
@@ -37,28 +33,11 @@ public static class Net
     public static void joinMatchmaking()
     {
         clientSocketLobby.Send("#elo:" + myLobbyID + ":" + myElo);
-       // SceneManager.LoadScene("Game");
     }
 
     private static void ClientSocketLobby_OnMessage(object sender, MessageEventArgs e)
     {
-        if (e.IsText)
-        {
-            //string[] data = e.Data.Split(':');
-            //if (data[0].Equals("#msg"))
-            //{
-            //    myLobbyID = data[1];
-            //    isConnectedToLobby = true;
-            //}
-            //else if (data[0].Equals("#str"))
-            //{
-            //    myMatchID = int.Parse(data[1]);
-            //    joinGame();
-            //    Debug.Log("JOIN GAME");
-            //    SceneManager.LoadScene("Game");
-            //}
-        }
-        else if(e.IsBinary)
+        if(e.IsBinary)
         {
             // serialize and add to receiving list
             NetPackett packet = new NetPackett();
@@ -132,58 +111,5 @@ public static class Net
         {
             clientSocketGame.Close();
         }
-        //int r = (int)MessageType.ClientMoved;
     }
-}
-
-
-
-
-
-
-
-
-
-[Serializable]
-public class Player
-{
-    public string lobbyId;
-    public string gameId;
-    public int elo;
-    public bool isMatchmaking;
-}
-
-[Serializable]
-public class Match
-{
-    public List<Player> matchPlayers = new List<Player>();
-    public int matchID;
-}
-
-[Serializable]
-public class NetPacket
-{
-    public MessageType messageType;
-    public string data;
-}
-
-//[Serializable]
-//public class Player
-//{
-//    public float pos;
-//    public string ID;
-//}
-
-public enum MessageType
-{
-    PlayerJoin,             //client - server	0
-    StartTheGame,           //server - client	1
-    GameLoaded,             //client - server	2
-    SpawnPlayer,            //server - client	3
-    ClientMoved,            //clinet - server	4
-    OtherPlayerMoved,       //server - client	5
-    SpawnFireball,          //client - server	6
-    ClientSpawnedFireball,  //server - client	7
-    ExitGame,               //server - client	8
-    SendingLobbyID          //server - client   9
 }

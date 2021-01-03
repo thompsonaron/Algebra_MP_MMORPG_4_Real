@@ -9,24 +9,22 @@ public class Menu : MonoBehaviour
     public InputField inputElo;
     public Button btnJoinServer;
     public Button btnJoinGame;
+    public Text textMatchmaking;
 
     public void joinServer()
     {
         Net.joinServer();
-        btnJoinGame.gameObject.SetActive(false);
+        btnJoinServer.gameObject.SetActive(false);
         StartCoroutine(JoinedServerRoutine());
     }
 
     public void startMatchmaking()
     {
         Net.myElo = inputElo.text;
+        btnJoinGame.gameObject.SetActive(false);
+        inputElo.gameObject.SetActive(false);
+        textMatchmaking.gameObject.SetActive(true);
         Net.joinMatchmaking();
-    }
-
-    // Start is called before the first frame update
-    void Start()
-    {
-
     }
 
     // Update is called once per frame

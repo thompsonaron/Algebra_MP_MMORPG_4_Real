@@ -1,9 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace MMORPG_Server
 {
@@ -213,36 +210,5 @@ namespace MMORPG_Server
             var bR = new BinaryReader(s);
             return bR.ReadString();
         }
-    }
-
-    //string message
-    //1. char = MessageType
-    //rest (2 - n). char = data
-
-
-    public class NetPacket
-    {
-        public MessageType messageType;
-        public string data;
-    }
-
-    [Serializable]
-    public class NetPackett
-    {
-        public MessageType messageType;
-        public byte[] data;
-    }
-
-    [Serializable]
-    public class Pllayyer
-    {
-        public float pos;
-        public string ID;
-    }
-
-    [Serializable]
-    public class StringData
-    {
-        public string data;
     }
 }

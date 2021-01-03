@@ -1,8 +1,6 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.IO;
-using UnityEngine;
 
 public static class Serializator
 {
@@ -203,37 +201,4 @@ public static class Serializator
     {
         return bR.ReadString();
     }
-
-}
-
-
-
-[Serializable]
-public class NetPackett
-{
-    public MessageType messageType;
-    public byte[] data;
-}
-
-[Serializable]
-public class Pllayyer
-{
-    public float pos;
-    public string ID;
-}
-
-[Serializable]
-public class StringData
-{
-    public string data;
-}
-
-[Serializable]
-public class PlayerPosition
-{
-    public float posX;
-    public float posY;
-    public float posZ;
-    public int playerIndex;
-    public int matchID;
 }
